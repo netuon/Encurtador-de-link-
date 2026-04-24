@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkShort - Encurtador de URL</title>
+    <link rel="stylesheet" href="../static/pagina.css">
+</head>
+<body>
+    <div class="main">
+        <div class="tabs">
+            <button class="tab active" onclick="trocarAba('encurtar', this)">Encurtar URL</button>
+
+            <button type="resumo" class="tab" onclick="trocarAba('historico', this)">Resumo</button>
+        </div>
+
+        <div id="encurtar" class="tab-panel active">
+                <div class="input-group">
+                <label for="CampoUrl">Cole sua URL aqui</label>
+                <input class="text" type="url" id="CampoUrl" placeholder="https://exemplo.com/pagina-muito-longa" />
+            </div>
+            <button class="btn-encurtar" onclick="encurtarUrl()">Encurtar Agora</button>
+            <p id="resultado"></p>
+        </div>
+
+        <div id="historico" class="tab-panel">
+            <div class="input-group">
+                <label for="campoBusca">Buscar no histórico</label>
+                <input class="text" type="text" id="campoBusca" placeholder="Digite uma URL para buscar..." />
+            </div>
+            <button class="btn-encurtar" onclick="buscarHistorico()">Resumo</button>
+            <p id="resultado2"></p>
+    </div>
+    </div>
+    <script>
+        async function encurtarUrl() {
+
+            try {
+                const urlInput = document.getElementById("CampoUrl").value;
+                const resposta = document.getElementById("resultado");
+
+                const response =  await fetch("/receber", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: urlInput })
+                });
+                const data = await response.json();
+                Alert("Requisição enviada com sucesso!");
+
+                document.getElementById("CampoUrl").value = "";
+
+            } catch (error) {
+                document.getElementById("resultado").z";
+            }
+    }
+    function trocarAba(id, el) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+}
+    
+    </script>
+
+</body>
+</html>
