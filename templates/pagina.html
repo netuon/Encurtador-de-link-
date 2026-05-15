@@ -11,7 +11,7 @@
         <div class="tabs">
             <button class="tab active" onclick="trocarAba('encurtar', this)">Encurtar URL</button>
 
-            <button type="resumo" class="tab" onclick="trocarAba('historico', this)">Resumo</button>
+            <button type="resumo" class="tab active" onclick="trocarAba('historico', this)">Resumo</button>
         </div>
 
         <div id="encurtar" class="tab-panel active">
@@ -20,7 +20,6 @@
                 <input class="text" type="url" id="CampoUrl" placeholder="https://exemplo.com/pagina-muito-longa" />
             </div>
             <button class="btn-encurtar" onclick="encurtarUrl()">Encurtar Agora</button>
-            <p id="resultado"></p>
         </div>
 
         <div id="historico" class="tab-panel">
@@ -30,7 +29,17 @@
             </div>
             <button class="btn-encurtar" onclick="buscarHistorico()">Resumo</button>
             <p id="resultado2"></p>
-    </div>
+        </div>
+        <div id="resultado-box" class="tab-panel">
+            <h2 class="title">URL encurtada com sucesso!!</h2>
+            <div id="result">
+                <p class="resultado" id="resultado"></p>
+            </div>
+            <div class="buttons">
+                <button class="btn-encurtar" onclick="trocarAba('encurtar', this)">Voltar</button>
+                <button class="btn-encurtar" onclick="copiarUrl()">copiar</button>
+            </div>
+        </div>
     </div>
     <script>
         async function encurtarUrl() {
@@ -39,18 +48,25 @@
                 const urlInput = document.getElementById("CampoUrl").value;
                 const resposta = document.getElementById("resultado");
 
-                const response =  await fetch("/receber", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ url: urlInput })
-                });
-                const data = await response.json();
-                Alert("Requisição enviada com sucesso!");
+                if(urlInput == ""){
+                    alert("Campo está vazio, digite algo!!!");
+                } else {
+                    const response =  await fetch("http://localhost:18080/receber", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ url: urlInput })
+                    });
+                    const data = await response.json();
+                    resposta.textContent = data.url;
 
-                document.getElementById("CampoUrl").value = "";
-
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    document.querySelector('.tabs').style.display = 'none';
+                    document.getElementById('resultado-box').classList.add('active');
+                    document.getElementById("CampoUrl").value = " ";
+                    }
             } catch (error) {
-                document.getElementById("resultado").z";
+                document.getElementById("resultado").textContent = "Ocorreu um erro ao encurtar a URL.";
+                document.getElementById("CampoUrl").value = " ";
             }
     }
     function trocarAba(id, el) {
@@ -58,8 +74,19 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
-}
-    
+        document.querySelector('.tabs').style.display = 'flex';
+    }
+
+    function copiarUrl(){
+        try{
+            const Url = document.getElementById('resultado').textContent;
+            navigator.clipboard.writeText(Url);
+            alert("Url copiada com sucesso!!!");
+        } catch {
+            const Url = document.getElementById("resultado").textContent;
+            alert("não foi possível copiar a URL" + Url);
+        }
+    }
     </script>
 
 </body>
