@@ -26,10 +26,26 @@ string gerarCodigo(size_t tamanho){
             return s;
     }
 
+struct CORSMiddleware {
+    struct context {};
+    
+    void before_handle(crow::request& req, crow::response& res, context& ctx) {
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type");
+        
+        if (req.method == crow::HTTPMethod::OPTIONS) {
+            res.code = 200;
+            res.end();
+        }
+    }
+    
+    void after_handle(crow::request& req, crow::response& res, context& ctx) {}
+};
 
 
 int main(){
-    crow::SimpleApp app;//criação do servidor web usando a biblioteca Crow
+    crow::App<CORSMiddleware> app;//criação do servidor web usando a biblioteca Crow
 
    
     CROW_ROUTE(app, "/pagina")([](){
