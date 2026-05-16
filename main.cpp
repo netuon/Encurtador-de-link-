@@ -51,12 +51,13 @@ int main(){
         // 2. Adiciona os headers de CORS logo no início
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        res.add_header("Access-Control-Allow-Headers", "Content-Type");
-        res.add_header("Content-Type", "application/json");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        res.set_header("Content-Type", "application/json");
 
         // 3. Se for OPTIONS (checagem do navegador), responde 200 OK imediatamente
         if (req.method == crow::HTTPMethod::OPTIONS) {
             res.code = 200;
+            res.body = "";
             return res;
         }
 
