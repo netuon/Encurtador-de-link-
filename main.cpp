@@ -45,56 +45,56 @@ int main(){
 
     CROW_ROUTE(app, "/receber").methods(crow::HTTPMethod::POST, crow::HTTPMethod::OPTIONS)
     ([](const crow::request& req){
+        
+        crow::response res(200);
+        cout << "Options recebido" << endl;
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type");
         if (req.method == crow::HTTPMethod::OPTIONS){
-            crow::response res(200);
-            cout << "Options recebido" << endl;
-            res.add_header("Access-Control-Allow-Origin", "*");
-            res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-            res.add_header("Access-Control-Allow-Headers", "Content-Type");
-
+            res.code = 200;
             return res;
-        } else {
-            const char* db_url = std::getenv("DATABASE_URL");
-            pqxx::connection c(db_url);
 
-            try{
-                if(c.is_open()){
-                    cout << "Conectado com sucesso!" << endl;
-                } 
-            } catch (const pqxx::sql_error &e) {
-                cerr << "erro:" << e.what() << endl;//imprime qualquer erro que ocorrer durante a conexão ou consulta
-            }
+        }
+        const char* db_url = std::getenv("DATABASE_URL");
+        pqxx::connection c(db_url);
+
+        try{
+            if(c.is_open()){
+                cout << "Conectado com sucesso!" << endl;
+            } 
+        } catch (const pqxx::sql_error &e) {
+            cerr << "erro:" << e.what() << endl;//imprime qualquer erro que ocorrer durante a conexão ou consulta
+        }
 
             //faz a transformação do json recebido
-            auto body = crow::json::load(req.body);
-            if (!body){
-                return crow::response(400);
-            }
+        auto body = crow::json::load(req.body);
+        if (!body){
+            return crow::response(400);
+        }
 
             //captura a url do json recebido
-            string url_user = body["url"].s();
+        string url_user = body["url"].s();
 
             //faz o que precisar com a URL
-            cout << "URL recebida: " << url_user << endl;
-            string processado = "C++ recebeu: " + url_user;
+        cout << "URL recebida: " << url_user << endl;
+        string processado = "C++ recebeu: " + url_user;
 
 
-            string codigo = gerarCodigo(6);
-            pqxx::work tx{c};
+        string codigo = gerarCodigo(6);
+        pqxx::work tx{c};
 
             //monta o json de resposta
-            crow::response res(200);
-            res.add_header("Access-Control-Allow-Origin", "*");
-            crow::json::wvalue response;
-            response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
-            res.body = response.dump();
-            res.add_header("Content-Type", "application/json");//cabeçalho
-
-            tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url_user +"')");
-            tx.commit();
-
-            return res;
-        }
+        crow::response res(200);
+        res.add_header("Access-Control-Allow-Origin", "*");
+        crow::json::wvalue response;
+        response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
+        res.body = response.dump();
+        res.add_header("Content-Type", "application/json");//cabeçalho
+        tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url_user +"')");
+        tx.commit();
+        
+        return res;
         
     });
 
