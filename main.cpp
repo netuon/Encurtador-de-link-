@@ -84,8 +84,6 @@ int main(){
         string codigo = gerarCodigo(6);
         pqxx::work tx{c};
 
-            //monta o json de resposta
-        crow::response res(200);
         res.add_header("Access-Control-Allow-Origin", "*");
         crow::json::wvalue response;
         response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
@@ -93,7 +91,7 @@ int main(){
         res.add_header("Content-Type", "application/json");//cabeçalho
         tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url_user +"')");
         tx.commit();
-        
+
         return res;
         
     });
