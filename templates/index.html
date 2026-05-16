@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-    <script>
+    <script type="module">
         async function encurtarUrl() {
 
             try {
@@ -51,7 +51,7 @@
                 if(urlInput == ""){
                     alert("Campo está vazio, digite algo!!!");
                 } else {
-                    const response =  await fetch("https://encurtador-de-link-zfeq.onrender.com", {
+                    const response =  await fetch("https://encurtador-de-link-zfeq.onrender.com/receber", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ url: urlInput })

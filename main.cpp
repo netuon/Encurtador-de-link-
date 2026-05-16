@@ -4,6 +4,7 @@
 #include <string>
 #include <random>
 #include <algorithm>
+#include <cstdlib>
 
 using namespace std;
 
@@ -48,7 +49,7 @@ int main(){
             crow::response res(200);
             cout << "Options recebido" << endl;
             res.add_header("Access-Control-Allow-Origin", "*");
-            res.add_header("Access-Control-Allow-Methods", "POST, OPTIONS");
+            res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
             res.add_header("Access-Control-Allow-Headers", "Content-Type");
 
             return res;
@@ -85,7 +86,7 @@ int main(){
             crow::response res(200);
             res.add_header("Access-Control-Allow-Origin", "*");
             crow::json::wvalue response;
-            response["url"] = "http://localhost:18080/" + codigo;
+            response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
             res.body = response.dump();
             res.add_header("Content-Type", "application/json");//cabeçalho
 
@@ -99,7 +100,8 @@ int main(){
 
     CROW_ROUTE(app, "/<string>")
     ([](const string& codigo){
-        pqxx::connection c("dbname=encurtador user=postgres password=1234 host=127.0.0.1");
+        const char* db_url = std::getenv("DATABASE_URL");
+        pqxx::connection c(db_url);
 
         pqxx::work tx{c};
         pqxx::result r = tx.exec("SELECT url_original FROM urls WHERE codigo = '" + codigo + "'");
@@ -117,6 +119,6 @@ int main(){
     });
     
 
-    app.port(18080).multithreaded().run();//define a porta do servidor e inicia o servidor web
+    app.port(10000).multithreaded().run();//define a porta do servidor e inicia o servidor web
 
 }
