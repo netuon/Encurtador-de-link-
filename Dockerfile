@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     make \
     libpq-dev \
+    libpqxx-dev \
     curl \
     libasio-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -22,7 +23,7 @@ RUN curl -L https://github.com/CrowCpp/Crow/releases/download/v1.0+5/crow_all.h 
 COPY . .
 
 # 4. Compila o código linkando o Postgres
-RUN g++ main.cpp -o servidor -lpq -pthread
+RUN g++ main.cpp -o servidor -lpq -lpqxx -pthread
 
 EXPOSE 10000
 
