@@ -1,29 +1,29 @@
-# 1. Escolhemos o "computador" virtual (Ubuntu)
 FROM ubuntu:22.04
 
-# 2. Evita perguntas interativas durante a instalação
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3. Instala compilador e bibliotecas do PostgreSQL
+# 1. Instala o compilador, o Postgres E o "curl" ou "wget" para baixar o Crow
 RUN apt-get update && apt-get install -y \
     g++ \
     cmake \
     make \
     libpq-dev \
+    curl \
+    libasio-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Define onde o código ficará dentro do container
 WORKDIR /app
 
-# 5. Copia seus arquivos do Windows para dentro do container
+# 2. Baixa o arquivo do Crow direto do GitHub oficial para a pasta do build
+# Usamos a versão estável mais comum do arquivo único (crow_all.h)
+RUN curl -L https://github.com/CrowCpp/Crow/releases/download/v1.0+5/crow_all.h -o crow.h
+
+# 3. Copia os seus arquivos do Windows (incluindo o main.cpp)
 COPY . .
 
-# 6. Compila o código (Ajuste o comando conforme seu projeto)
-# Exemplo se for um único arquivo main.cpp usando a biblioteca do Postgres
-RUN g++ main.cpp -o servidor -lpq
+# 4. Compila o código linkando o Postgres
+RUN g++ main.cpp -o servidor -lpq -pthread
 
-# 7. Expõe a porta que o Render usa
 EXPOSE 10000
 
-# 8. Comando para iniciar o seu encurtador
 CMD ["./servidor"]

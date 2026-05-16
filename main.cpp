@@ -53,6 +53,7 @@ int main(){
 
             return res;
         } else {
+            const char* url = std::getenv("DATABASE_URL");
             pqxx::connection c("dbname=encurtador user=postgres password=1234 host=127.0.0.1");
 
             try{
