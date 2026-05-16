@@ -57,7 +57,7 @@ int main(){
         // 3. Se for OPTIONS (checagem do navegador), responde 200 OK imediatamente
         if (req.method == crow::HTTPMethod::OPTIONS) {
             res.code = 200;
-            res.body = "";
+            res.body = "OK";
             return res;
         }
 
