@@ -15,15 +15,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# 2. Baixa o arquivo do Crow direto do GitHub oficial para a pasta do build
-# Usamos a versão estável mais comum do arquivo único (crow_all.h)
+# 2. Baixa o Crow (Essa parte já funcionou!)
 RUN curl -L https://github.com/CrowCpp/Crow/releases/download/v1.0+5/crow_all.h -o crow.h
 
-# 3. Copia os seus arquivos do Windows (incluindo o main.cpp)
 COPY . .
 
-# 4. Compila o código linkando o Postgres
-RUN g++ main.cpp -o servidor -lpq -lpqxx -pthread
+# 3. ALTERADO: Adicionado -lpqxx para linkar a biblioteca C++ do Postgres
+RUN g++ main.cpp -o servidor -lpqxx -lpq -pthread
 
 EXPOSE 10000
 
