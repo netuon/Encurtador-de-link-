@@ -44,56 +44,62 @@ int main(){
     });
 
     CROW_ROUTE(app, "/receber").methods(crow::HTTPMethod::POST, crow::HTTPMethod::OPTIONS)
-    ([](const crow::request& req){
+    ([](const crow::request& req) {
+        // 1. Criamos a resposta ÚNICA que vai ser usada em toda a rota
+        crow::response res;
         
-        crow::response res(200);
-        cout << "Options recebido" << endl;
+        // 2. Adiciona os headers de CORS logo no início
         res.add_header("Access-Control-Allow-Origin", "*");
         res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         res.add_header("Access-Control-Allow-Headers", "Content-Type");
-        if (req.method == crow::HTTPMethod::OPTIONS){
+        res.add_header("Content-Type", "application/json");
+
+        // 3. Se for OPTIONS (checagem do navegador), responde 200 OK imediatamente
+        if (req.method == crow::HTTPMethod::OPTIONS) {
             res.code = 200;
             return res;
-
         }
+
+        // 4. Se for POST, segue o processo:
         const char* db_url = std::getenv("DATABASE_URL");
         pqxx::connection c(db_url);
 
-        try{
+        try {
             if(c.is_open()){
-                cout << "Conectado com sucesso!" << endl;
+                cout << "Conectado com sucesso ao Neon!" << endl;
             } 
         } catch (const pqxx::sql_error &e) {
-            cerr << "erro:" << e.what() << endl;//imprime qualquer erro que ocorrer durante a conexão ou consulta
+            cerr << "Erro no banco: " << e.what() << endl;
+            res.code = 500;
+            res.body = "{\"error\": \"Erro no banco de dados\"}";
+            return res;
         }
 
-            //faz a transformação do json recebido
         auto body = crow::json::load(req.body);
         if (!body){
-            return crow::response(400);
+            res.code = 400;
+            res.body = "{\"error\": \"JSON invalido\"}";
+            return res;
         }
 
-            //captura a url do json recebido
         string url_user = body["url"].s();
-
-            //faz o que precisar com a URL
         cout << "URL recebida: " << url_user << endl;
-        string processado = "C++ recebeu: " + url_user;
-
 
         string codigo = gerarCodigo(6);
         pqxx::work tx{c};
 
-        res.add_header("Access-Control-Allow-Origin", "*");
-        crow::json::wvalue response;
-        response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
-        res.body = response.dump();
-        res.add_header("Content-Type", "application/json");//cabeçalho
-        tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url_user +"')");
+        // Salva no banco de dados Neon
+        tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '" + url_user + "')");
         tx.commit();
 
-        return res;
+        // Monta o JSON de sucesso (AQUI FOI CORRIGIDO: não recriamos 'res', apenas alteramos ela)
+        crow::json::wvalue response;
+        response["url"] = "https://encurtador-de-link-zfeq.onrender.com/" + codigo;
         
+        res.code = 200;
+        res.body = response.dump();
+
+        return res; 
     });
 
     CROW_ROUTE(app, "/<string>")
