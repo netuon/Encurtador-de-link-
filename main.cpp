@@ -49,8 +49,8 @@ int main(){
         crow::response res;
         
         // 2. Adiciona os headers de CORS logo no início
-        res.add_header("Access-Control-Allow-Origin", "*");
-        res.add_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         res.add_header("Access-Control-Allow-Headers", "Content-Type");
         res.add_header("Content-Type", "application/json");
 
