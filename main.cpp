@@ -53,8 +53,8 @@ int main(){
 
             return res;
         } else {
-            const char* url = std::getenv("DATABASE_URL");
-            pqxx::connection c("dbname=encurtador user=postgres password=1234 host=127.0.0.1");
+            const char* db_url = std::getenv("DATABASE_URL");
+            pqxx::connection c(db_url);
 
             try{
                 if(c.is_open()){
@@ -71,11 +71,11 @@ int main(){
             }
 
             //captura a url do json recebido
-            string url = body["url"].s();
+            string url_user = body["url"].s();
 
             //faz o que precisar com a URL
             cout << "URL recebida: " << url << endl;
-            string processado = "C++ recebeu: " + url;
+            string processado = "C++ recebeu: " + url_user;
 
 
             string codigo = gerarCodigo(6);
