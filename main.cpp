@@ -74,7 +74,7 @@ int main(){
             string url_user = body["url"].s();
 
             //faz o que precisar com a URL
-            cout << "URL recebida: " << url << endl;
+            cout << "URL recebida: " << url_user << endl;
             string processado = "C++ recebeu: " + url_user;
 
 
@@ -89,7 +89,7 @@ int main(){
             res.body = response.dump();
             res.add_header("Content-Type", "application/json");//cabeçalho
 
-            tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url +"')");
+            tx.exec("INSERT INTO urls(codigo, url_original) VALUES('" + codigo + "', '"+ url_user +"')");
             tx.commit();
 
             return res;
